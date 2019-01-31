@@ -9,10 +9,10 @@ Please read the "Readme.txt for license agreement, installtion and usage instruc
 $superbowlURL = "http://www.vnlisting.com/superbowl";
 
 //make changes accordingly to your database
-$hostname = "lukhach.powwebmysql.com";
-$database = "superbowl_51";
-$username = "superbowl51";
-$password = "vnlisting";
+$hostname = "localhost";
+$database = "superbowl";
+$username = "superbowl";
+$password = "password";
 $db = mysql_connect($hostname, $username, $password);
 $db_select = mysql_select_db($database, $db) or mysql_error();
 ?>
