@@ -6,8 +6,15 @@ Please read the "Readme.txt for license agreement, installation and usage instru
 
 
 <?php 
-require_once('config.php'); 
-require "header.inc";
+$superbowlURL = $_SERVER['REQUEST_SCHEME']."://".$_SERVER['HTTP_HOST'].trim($_SERVER['PHP_SELF'], "thankyou.php");
+
+require_once('includes/dbTables.inc'); 
+$conn = dbConnection();
+if (!$conn) {
+    die("Are you sure your database is setup correctly?   I'm giving up!".mysqli_connect_error());
+}
+
+require "includes/header.inc";
 
 //$square = $_POST['square'];
 $sqTotal = $_POST["sqTotal"];
@@ -23,29 +30,29 @@ $date = date("Y-m-d h:i:s");
 $confirm = $_POST['confirmation'];
 
 for ($i=1;$i<=$sqTotal;$i++) {
-$query="SELECT * FROM VNSB_squares WHERE SQUARE='".$sqSelect[$i]."'";
-$result = mysql_query($query);
+$sql="SELECT * FROM VNSB_squares WHERE SQUARE='".$sqSelect[$i]."'";
+$result = mysqli_query($conn, $sql);
 if (!$result) {
-	//echo mysql_error();
+	//echo mysqli_error();
 	echo "\n\n\t***** Invalid square selected *****\n\n";
 	echo "<a href='javascript:onClick=history.go(-2);'>Back</a>";
 	exit;
 } else {
-	$record = mysql_fetch_assoc($result);
+	$record = mysqli_fetch_assoc($result);
 }
 }
 //continue only if the square is available
-if ($record['DATE'] == "0000-00-00 00:00:00") {
+if ($record['DATE'] == "0000-00-00 00:00:00" || $record['DATE'] == NULL) {
 
 
 //check for required fields
 for ($i=1;$i<=$sqTotal;$i++) {
 if (($sqSelect[$i] >= 00 OR $sqSelect[$i] < 100) AND $name != '' AND $email != '') {
 
-	$query="UPDATE VNSB_squares SET NAME='".$name."', EMAIL='".$email."', NOTES='".$notes."', DATE='".$date."', CONFIRM='".$confirm."' WHERE SQUARE='".$sqSelect[$i]."' LIMIT 1";
-	$result = mysql_query($query);
+	$sql="UPDATE VNSB_squares SET NAME='".$name."', EMAIL='".$email."', NOTES='".$notes."', DATE='".$date."', CONFIRM='".$confirm."' WHERE SQUARE='".$sqSelect[$i]."' LIMIT 1";
+	$result = mysqli_query($conn, $sql);
 	if (!$result) {
-		echo mysql_error();
+		echo mysqli_error();
 		echo "<BR>Sorry, Technical problem occurred... your selection was not added.<br><br> Email this problem to <a href=\"mailto:".$ADMIN_EMAIL."\">".$ADMIN_EMAIL."</a>";
 		exit;
 	}
@@ -99,7 +106,7 @@ $bodyMessage .= $notes."\r\n\n";
 
 notify_admin($email,$bodyMessage,$headers);
 
-require "footer.inc"; ?>
+require "includes/footer.inc"; ?>
 
 <?php
 } else {

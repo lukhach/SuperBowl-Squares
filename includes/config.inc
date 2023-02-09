@@ -1,0 +1,21 @@
+{
+    "db_host": "localhost",
+    "db_user": "llam",
+    "db_pass": "vnlisting",
+    "db_name": "superbowl",
+    "site_url": "http:\/\/172.23.49.14\/superbowl_v50",
+    "admin_email": "vnlisting@gmail.com",
+    "admin_pass": "vnlisting",
+    "sb_logo": "images\/sb_logo.jpg",
+    "afc_champ": "AFC",
+    "afc_champ_logo": "images\/AFC_logo.gif",
+    "nfc_champ": "NFC",
+    "nfc_champ_logo": "images\/NFC_logo.gif",
+    "sb_date": "Sunday, February 03, 2019",
+    "sb_time": "15:30",
+    "cost": "5",
+    "first": "20",
+    "second": "25",
+    "third": "20",
+    "final": "35"
+}

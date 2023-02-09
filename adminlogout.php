@@ -25,7 +25,7 @@
 		}
 	 ?>
 
-	 <p><a href="index.php">Home</a></p>
+	 <p><a href="<?php echo $_SERVER['REQUEST_SCHEME']."://".$_SERVER['HTTP_HOST'].trim($_SERVER['PHP_SELF'], "adminlogout.php");?>">Home</a></p>
 	 <p><a href="admin.php">Admin</a></p>
 
 </center>

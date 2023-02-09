@@ -5,8 +5,15 @@ Please read the "Readme.txt for license agreement, installation and usage instru
 -->
 
 <?php
-require_once('config.php'); 
-require "header.inc"; 
+$superbowlURL = $_SERVER['REQUEST_SCHEME']."://".$_SERVER['HTTP_HOST'].trim($_SERVER['PHP_SELF'], "signup.php");
+
+require_once('includes/dbTables.inc');
+$conn = dbConnection();
+if (!$conn) {
+    die("Are you sure your database is setup correctly?   I'm giving up!".mysqli_connect_error());
+}
+ 
+require "includes/header.inc"; 
 ?>
 
 <h3>SQUARE SELECTION</h3>
@@ -42,7 +49,7 @@ if ( isset($_REQUEST['sqSelect_Submit']) ) {
   	<!--<h2><strong>You are signing up for square(s): <font color="#ff0000"><?=$square_select?></font></strong></h2>-->
 	<!--<form name="signup"  action="thankyou.php" method="post">-->
 	  <p><b>Name</b> <br/><input type=text name="realname" size="30" value=""></p>
-	  <p><b>Email</b><br/><input type=text name="email" size="30" maxlength="45" value=""></p>
+	  <p><b>Email</b><br/><input type=email name="email" size="30" maxlength="45" value=""></p>
 	  <p><b>Notes to Admin</b><br/> 
 		<textarea name="body" rows="3" cols="40" wrap="virtual" style="font-family: verdana, arial; font-size: 10px"></textarea>
 	  </p>
@@ -57,4 +64,4 @@ if ( isset($_REQUEST['sqSelect_Submit']) ) {
 <p style="font-family: verdana, arial; font-size: 12px">
 	<a href="<?=$superbowlURL?>" title="Online Superbowl Squares">Home</a>
 </p>
-<?php require "footer.inc"; ?>
+<?php require "includes/footer.inc"; ?>

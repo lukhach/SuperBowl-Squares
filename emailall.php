@@ -14,8 +14,14 @@ if (!$_SESSION['VNSB']) {
 	<meta http-equiv="Refresh"content="0;url=adminlogin.php">
 <?php
 } else {
-
-	require_once('config.php'); 
+        $superbowlURL = $_SERVER['REQUEST_SCHEME']."://".$_SERVER['HTTP_HOST'].trim($_SERVER['PHP_SELF'], "emailall.php");
+        
+	require_once('includes/dbTables.inc');
+        $conn = dbConnection();
+        if (!$conn) {
+            die("Are you sure your database is setup correctly?   I'm giving up!".mysqli_connect_error());
+        }
+ 
 	$sendemails = $_POST['sendemails'];
 
 	$LINKS = "
@@ -31,7 +37,7 @@ if (!$_SESSION['VNSB']) {
 	";
 
 
-	require "header.inc"; 
+	require "includes/header.inc"; 
 
 	function notify_admin ($mailto, $mailmessage, $mail_headers)
 	{
@@ -72,13 +78,13 @@ if (!$_SESSION['VNSB']) {
 		$bodyMessage .= "Good Luck and enjoy the game.\r\n";
 		$bodyMessage .= "The Commissioner\r\n";
 		$headers = "From: $ADMIN_EMAIL\r\n";
-		$query="SELECT * FROM VNSB_squares ORDER BY EMAIL";
-		$result = mysql_query($query);
+		$sql="SELECT * FROM VNSB_squares ORDER BY EMAIL";
+		$result = mysqli_query($conn, $sql);
 		if (!$result) {
-			echo mysql_error();
+			echo mysqli_error();
 			exit;
 		}
-		while ($record = mysql_fetch_assoc($result)) {
+		while ($record = mysqli_fetch_assoc($result)) {
 			if ($USER_EMAIL != $record["EMAIL"]) {
 				$USER_NAME = $record["NAME"];
 				$USER_EMAIL = $record["EMAIL"];
@@ -92,7 +98,7 @@ if (!$_SESSION['VNSB']) {
 		$headers = "From: $ADMIN_EMAIL\r\n";
 		notify_admin($ADMIN_EMAIL,$bodyMessage,$headers);
 	} ?>
-<?php require "footer.inc"; 
+<?php require "includes/footer.inc"; 
 
 }
 ?>

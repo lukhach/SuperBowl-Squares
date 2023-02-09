@@ -2,7 +2,6 @@
 www.vnlisting.com
 Online Super Bowl Squares Script
 Please read the "Readme.txt for license agreement, installation and usage instructions 
-Version: 4.1	1/9/2012
 -->
 <?php
 @ob_start();
@@ -12,8 +11,14 @@ if (!$_SESSION['VNSB']) {
 	<meta http-equiv="Refresh"content="0;url=adminlogin.php">
 <?php
 } else {
+        $superbowlURL = $_SERVER['REQUEST_SCHEME']."://".$_SERVER['HTTP_HOST'].trim($_SERVER['PHP_SELF'], "randomnumber.php");
 
-	require_once('config.php'); 
+	require_once('includes/dbTables.inc'); 
+        $conn = dbConnection();
+        if (!$conn) {
+            die("Are you sure your database is setup correctly?   I'm giving up!".mysqli_connect_error());
+        }
+
 	$RANDOM = $_REQUEST['randomnumber'];
 
 	$LINKS = "
@@ -28,7 +33,7 @@ if (!$_SESSION['VNSB']) {
 		</p>
 	";
 
-	require "header.inc"; 
+	require "includes/header.inc"; 
 
 	echo "
 	<h1>Numbers Assignment</h1>
@@ -38,9 +43,9 @@ if (!$_SESSION['VNSB']) {
 	";
 
 	// makesure all squares are selected
-	$query="SELECT * FROM VNSB_squares WHERE `NAME`='AVAILABLE'";
-	$result = mysql_query($query);
-	if ($record = mysql_fetch_assoc($result)) {
+	$sql="SELECT * FROM VNSB_squares WHERE `NAME`='AVAILABLE'";
+	$result = mysqli_query($conn, $sql);
+	if ($record = mysqli_fetch_assoc($result)) {
 		echo "<br><h2 style=\"color: #ff0000\">Squares are still available!!!</h2><br>";
 		echo $LINKS;
 		require "footer.inc";
@@ -48,9 +53,9 @@ if (!$_SESSION['VNSB']) {
 	}
 
 	// stop if numbers existed
-	$query="SELECT * FROM VNSB_numbers";
-	$result = mysql_query($query);
-	if ($record = mysql_fetch_assoc($result)) {
+	$sql="SELECT * FROM VNSB_numbers";
+	$result = mysqli_query($conn, $sql);
+	if ($record = mysqli_fetch_assoc($result)) {
 		echo "<br><h2 style=\"color: #ff0000\">Numbers already exist!!!</h2><br>";
 		echo $LINKS;
 		require "footer.inc";
@@ -107,15 +112,15 @@ if (!$_SESSION['VNSB']) {
 		  </tr>
 		<tr>";
 		
-		$query="SELECT * FROM VNSB_squares ORDER BY SQUARE";
-		$result = mysql_query($query);
+		$sql="SELECT * FROM VNSB_squares ORDER BY SQUARE";
+		$result = mysqli_query($conn, $sql);
 		if (!$result) {
-			echo mysql_error();
+			echo mysqli_error();
 			exit;
 		}
 		$cnt_row = 0;
 		$i=0;
-		while ($record = mysql_fetch_assoc($result)) {	
+		while ($record = mysqli_fetch_assoc($result)) {	
 			if ($cnt_row==0) {$i++; echo"<td align='center'> $AFC_TEAM<br/><font size='3' color=\"red\"><strong>".$AFC[$i]."</strong></font> </td>";}
 			if ($record['NAME'] == "AVAILABLE") { 
 				echo "<td width='10%' title='only $".$BET."'><a href=\"signup.php?square=".$record['SQUARE']."\">".stripslashes($record['NAME'])."<br/>".$record['SQUARE']."</a></td>";
@@ -145,10 +150,10 @@ if (!$_SESSION['VNSB']) {
 	// save to database
 	if (isset($RANDOM)) {
 		for ($n=1; $n<=10; $n++) {
-			$query="INSERT INTO VNSB_numbers (NFC, AFC) VALUES ('".$NFC[$n]."','".$AFC[$n]."')";
-			$result = mysql_query($query);
+			$sql="INSERT INTO VNSB_numbers (NFC, AFC) VALUES ('".$NFC[$n]."','".$AFC[$n]."')";
+			$result = mysqli_query($conn, $sql);
 			if (!$result) {
-				echo mysql_error();
+				echo mysqli_error();
 				echo "<p>PROBLEM WRITING NUMBERS INTO DATABASE!</p>";
 				exit;
 			}
@@ -156,7 +161,7 @@ if (!$_SESSION['VNSB']) {
 	}
 
 	echo $LINKS;
-	require "footer.inc";
+	require "ncludes/footer.inc";
 }
 ?>
 

@@ -1,28 +1,32 @@
-<?session_start();
-?>
-<!-- 
-www.vnlisting.com
-Online Super Bowl Squares Script
-Please read the "Readme.txt for license agreement, installation and usage instructions 
-Version: 4.2	1/23/2013
--->
-
-<?php
+<?php 
+session_start();
 @ob_start();
+ 
+#www.vnlisting.com
+#Online Super Bowl Squares Script
+#Please read the "Readme.txt for license agreement, installation and usage instructions 
+
+
 if (!isset($_SESSION['VNSB'])) { 
-	?>
-		<meta http-equiv="Refresh"content="0;url=adminlogin.php">
-	<?
+?>
+        <meta http-equiv="Refresh"content="0;url=adminlogin.php">
+<?php
 } else {
 
-	require_once('config.php'); 
+	require "includes/dbTables.inc"; 
+        $conn = dbConnection();
+	if (!$conn) {
+	    die("Are you sure your database is setup correctly?   I'm giving up!". mysqli_connect_error());
+	}
+
+        $superbowlURL = $_SERVER['REQUEST_SCHEME']."://".$_SERVER['HTTP_HOST'].trim($_SERVER['PHP_SELF'], "admin.php");
 	$confirmation = $_POST['Confirmation'];
 	$SQUARE = $_POST['square'];
 	$CONFIRM = $_POST['confirm'];
 	$RELEASE = $_POST['release'];
 	$NOTES = $_POST['body'];
 
-	require "header.inc"; 
+	require "includes/header.inc"; 
 
 	//$headers = "From: $ADMIN_EMAIL\r\nBcc: $ADMIN_EMAIL\r\n";
 
@@ -65,13 +69,13 @@ if (!isset($_SESSION['VNSB'])) {
 						<select name="square[]" id="square" size="11" multiple>
 							<!--<option value="">Select One</option>-->
 							<?php
-								$query="SELECT * FROM VNSB_squares WHERE NAME!='AVAILABLE' AND NAME!='' AND CONFIRM='0' ORDER BY NAME, SQUARE";
-								$result = mysql_query($query);
+								$sql="SELECT * FROM `VNSB_squares` WHERE NAME!='AVAILABLE' AND NAME!='' AND CONFIRM='0' ORDER BY NAME, SQUARE";
+								$result = mysqli_query($conn, $sql);
 								if (!$result) {
-									echo mysql_error();
+									echo mysqli_error();
 									exit;
 								}
-								while ($record = mysql_fetch_assoc($result)) {
+								while ($record = mysqli_fetch_assoc($result)) {
 									echo "<option value = '".$record['SQUARE']."'>".$record["NAME"]." - ".$record["SQUARE"]."</option>";
 								}
 							?>
@@ -102,7 +106,7 @@ if (!isset($_SESSION['VNSB'])) {
 	 <p>
 	  <table width="50%" border="0" cellspacing="0" cellpadding="0" style="font-family: verdana, arial; font-size: 12px">
 		<tr>
-		<td width="25%"><a href="<?=$superbowlURL?>" title="Home">Home</a></td>
+		<td width="25%"><a href="<?php echo $superbowlURL; ?>" title="Home">Home</a></td>
 		<td width="25%" align="center"><a href="randomnumber.php" title="Random Numbers">Numbers</a></td>
 		<td width="25%" align="center"><a href="scores.php" title="Enter scores">Scores</a></td>
 		<td width="25%" align="right"><a href="adminlogout.php" title="Admin logout">Logout</a></td>
@@ -126,16 +130,16 @@ if (!isset($_SESSION['VNSB'])) {
 			$square_list = substr_replace($square_list,"",0,2);
 			//echo $square_list."</br>";
 			
-			$query="SELECT * FROM VNSB_squares WHERE $whereclause";
-			//echo $query."</br>";
-			$result = mysql_query($query);
+			$sql="SELECT * FROM `VNSB_squares` WHERE $whereclause";
+			//echo $sql."</br>";
+			$result = mysqli_query($conn, $sql);
 			if (!$result) {
-				echo mysql_error();
+				echo mysqli_error();
 				exit;
 			}
 			
 			$USER_EMAIL_LIST = '';
-			while ($record = mysql_fetch_assoc($result)) {
+			while ($record = mysqli_fetch_assoc($result)) {
 				$USER_EMAIL = '';
 				$USER_EMAIL = $record["EMAIL"];
 				
@@ -150,10 +154,10 @@ if (!isset($_SESSION['VNSB'])) {
 			$bodyMessage = "\r\nNOTIFICATION\r\n";
 			//echo $bodyMessage."</br>";
 			if ($CONFIRM==1 AND $RELEASE!=1) {
-				$query="UPDATE VNSB_squares SET CONFIRM='1' WHERE $whereclause";			
+				$sql="UPDATE `VNSB_squares` SET CONFIRM='1' WHERE $whereclause";			
 				$bodyMessage .= "Your square $square_list is now confirmed.\r\n\n";
 			} else if ($RELEASE==1 AND $CONFIRM!=1) {
-				$query="UPDATE VNSB_squares SET NAME='AVAILABLE', EMAIL='', NOTES='', DATE='', CONFIRM='0' WHERE $whereclause";
+				$sql="UPDATE `VNSB_squares` SET NAME='AVAILABLE', EMAIL='', NOTES='', DATE='', CONFIRM='0' WHERE $whereclause";
 				$bodyMessage .= "Your square $square_list selection is now released due to no payment.\r\n";
 				$bodyMessage .= "If this is an error, please contact me or re-select your square.\r\n\n";
 			} else if (($CONFIRM!=1 AND $RELEASE!=1) OR ($RELEASE==1 AND $CONFIRM==1) ) {
@@ -161,10 +165,10 @@ if (!isset($_SESSION['VNSB'])) {
 				echo "<p><a href='javascript:onClick=history.go(-1);'>Back</a></p>";
 				exit;
 			}
-			//echo $query."</br>";
-			$result = mysql_query($query);
+			//echo $sql."</br>";
+			$result = mysqli_query($conn, $sql);
 			if (!$result) {
-				echo mysql_error();
+				echo mysqli_error();
 			} else {
 				$bodyMessage .= $NOTES."\r\n\n";								
 				$bodyMessage .= "Good Luck and enjoy the game.\r\n";
@@ -206,6 +210,6 @@ if (!isset($_SESSION['VNSB'])) {
 		">
 		</form>
 	</p>
-	<?php require "footer.inc"; 
+	<?php require "includes/footer.inc"; 
 }
 ?>
